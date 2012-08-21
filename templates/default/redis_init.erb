@@ -10,33 +10,47 @@ CLIEXEC=<%= node['redis']['dst_dir'] %>/bin/redis-cli
 PIDFILE=<%= node['redis']['config']['pidfile'] %>
 CONF="<%= node['redis']['conf_dir'] %>/redis.conf"
 
+
+start_redis () {
+    if [ -f $PIDFILE ]
+    then
+            echo "$PIDFILE exists, process is already running or crashed"
+    else
+            echo "Starting Redis server..."
+            $EXEC $CONF
+    fi
+}
+
+stop_redis () {
+    if [ ! -f $PIDFILE ]
+    then
+            echo "$PIDFILE does not exist, process is not running"
+    else
+            PID=$(cat $PIDFILE)
+            echo "Stopping ..."
+            $CLIEXEC -p $REDISPORT shutdown
+            while [ -x /proc/${PID} ]
+            do
+                echo "Waiting for Redis to shutdown ..."
+                sleep 1
+            done
+            echo "Redis stopped"
+    fi
+}
+
 case "$1" in
     start)
-        if [ -f $PIDFILE ]
-        then
-                echo "$PIDFILE exists, process is already running or crashed"
-        else
-                echo "Starting Redis server..."
-                $EXEC $CONF
-        fi
+        start_redis
         ;;
     stop)
-        if [ ! -f $PIDFILE ]
-        then
-                echo "$PIDFILE does not exist, process is not running"
-        else
-                PID=$(cat $PIDFILE)
-                echo "Stopping ..."
-                $CLIEXEC -p $REDISPORT shutdown
-                while [ -x /proc/${PID} ]
-                do
-                    echo "Waiting for Redis to shutdown ..."
-                    sleep 1
-                done
-                echo "Redis stopped"
-        fi
+        stop_redis
+        ;;
+    restart)
+        stop_redis
+        start_redis
         ;;
     *)
-        echo "Please use start or stop as first argument"
+        echo "Only start, stop, and restart operations are supported."
         ;;
 esac
+
