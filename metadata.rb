@@ -24,5 +24,6 @@ recipe "redis::server_source", "Uses the recipe crumbs in the Redis cookbook to 
 end
 
 %w[ build-essential runit yum ].each do |cookbook|
-  depends cookbook
+  recommends cookbook
 end
+
