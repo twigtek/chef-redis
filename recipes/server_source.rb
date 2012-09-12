@@ -21,6 +21,7 @@
 include_recipe "redis::_group"
 include_recipe "redis::_user"
 include_recipe "redis::_server_install_from_source"
+include_recipe "redis::_server_config"
 
 case node['redis']['init_style']
 when "runit"
@@ -28,6 +29,4 @@ when "runit"
 when "init"
   include_recipe "redis::_server_init"
 end
-
-include_recipe "redis::_server_config"
 
