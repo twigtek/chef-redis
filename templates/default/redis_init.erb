@@ -3,6 +3,7 @@
 # Simple Redis init.d script conceived to work on Linux systems
 # as it does use the /proc filesystem.
 
+REDISHOST=<%= node['redis']['config']['listen_addr'] %>
 REDISPORT=<%= node['redis']['config']['listen_port'] %>
 EXEC=<%= node['redis']['dst_dir'] %>/bin/redis-server
 CLIEXEC=<%= node['redis']['dst_dir'] %>/bin/redis-cli
@@ -28,7 +29,7 @@ stop_redis () {
     else
             PID=$(cat $PIDFILE)
             echo "Stopping ..."
-            $CLIEXEC -p $REDISPORT shutdown
+            $CLIEXEC -h $REDISHOST -p $REDISPORT shutdown
             while [ -x /proc/${PID} ]
             do
                 echo "Waiting for Redis to shutdown ..."
